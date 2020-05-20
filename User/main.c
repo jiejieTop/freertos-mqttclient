@@ -5,6 +5,9 @@
 
 #include "mqttclient.h"
 
+//#define TEST_USEING_TLS  
+
+extern const char *test_ca_get(void);
 
 static TaskHandle_t app_task_create_handle = NULL;/* 创建任务句柄 */
 static TaskHandle_t mqtt_task_handle = NULL;/* LED任务句柄 */
@@ -71,19 +74,19 @@ static void app_task_create(void)
     init_params.read_buf_size = 1024;
     init_params.write_buf_size = 1024;
 
-#ifdef MQTT_NETWORK_TYPE_TLS
-    init_params.connect_params.network_params.network_ssl_params.ca_crt = test_ca_get();
-    init_params.connect_params.network_params.port = "8883";
+#ifdef TEST_USEING_TLS
+    init_params.network.ca_crt = test_ca_get();
+    init_params.network.port = "8883";
 #else
-    init_params.connect_params.network_params.port = "1883";
+    init_params.network.port = "1883";
 #endif
-    init_params.connect_params.network_params.addr = "129.204.201.235"; //"47.95.164.112";//"jiejie01.top"; //"129.204.201.235"; //"192.168.1.101";
+    init_params.network.addr = "www.jiejie01.top"; //"47.95.164.112";//"jiejie01.top"; //"129.204.201.235"; //"192.168.1.101";
 
     init_params.connect_params.user_name = random_string(10); // random_string(10); //"jiejietop-acer1";
     init_params.connect_params.password = random_string(10); //random_string(10); // "123456";
     init_params.connect_params.client_id = random_string(10); //random_string(10); // "clientid-acer1";
     init_params.connect_params.clean_session = 1;
-
+    
     mqtt_init(&client, &init_params);
 
     err = mqtt_connect(&client);
@@ -102,7 +105,7 @@ static void app_task_create(void)
                         (const char*    )"mqtt_task",/* 任务名字 */
                         (uint16_t       )2048,   /* 任务栈大小 */
                         (void*          )NULL,	/* 任务入口函数参数 */
-                        (UBaseType_t    )5,	    /* 任务的优先级 */
+                        (UBaseType_t    )10,	    /* 任务的优先级 */
                         (TaskHandle_t*  )&mqtt_task_handle);/* 任务控制块指针 */
     if(pdPASS == xReturn)
         printf("Create mqtt_task sucess...\r\n");

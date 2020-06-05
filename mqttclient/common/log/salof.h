@@ -107,7 +107,6 @@ void salof(const char *fmt, ...);
 #define LOG_WARN(fmt, ...)
 #define LOG_ERR(fmt, ...)
 #define LOG(fmt, ...)
-#define ASSERT(x)
 #endif
 
 #endif // !_SALOF_H_

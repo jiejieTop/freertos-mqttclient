@@ -80,7 +80,7 @@ static void app_task_create(void)
 #else
     init_params.network.port = "1883";
 #endif
-    init_params.network.addr = "www.jiejie01.top"; //"47.95.164.112";//"jiejie01.top"; //"129.204.201.235"; //"192.168.1.101";
+    init_params.network.host = "www.jiejie01.top"; //"47.95.164.112";//"jiejie01.top"; //"129.204.201.235"; //"192.168.1.101";
 
     init_params.connect_params.user_name = random_string(10); // random_string(10); //"jiejietop-acer1";
     init_params.connect_params.password = random_string(10); //random_string(10); // "123456";

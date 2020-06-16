@@ -34,7 +34,7 @@ int platform_net_socket_connect(const char *host, const char *port, int proto)
             break;
         }
 
-        close(fd);
+        platform_net_socket_close(fd);
         ret = MQTT_CONNECT_FAILED_ERROR;
     }
 

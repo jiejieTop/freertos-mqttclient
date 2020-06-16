@@ -15,7 +15,7 @@
 #ifdef LOG_IS_SALOF
     #define         USE_LOG                     (1U)
     #define         USE_SALOF                   (1U)
-    #define         SALOF_OS                    USE_LINUX
+    #define         SALOF_OS                    USE_FREERTOS
     #define         USE_IDLE_HOOK               (0U)
     #define         LOG_COLOR                   (1U)
     #define         LOG_TS                      (1U)

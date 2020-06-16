@@ -12,9 +12,6 @@ extern const char *test_ca_get(void);
 static TaskHandle_t app_task_create_handle = NULL;/* 创建任务句柄 */
 static TaskHandle_t mqtt_task_handle = NULL;/* LED任务句柄 */
 
-static mqtt_client_t client;
-static client_init_params_t init_params;
-
 static void app_task_create(void);/* 用于创建任务 */
 
 static void mqtt_task(void* pvParameters);/* mqtt_task任务实现 */
@@ -63,37 +60,36 @@ static void app_task_create(void)
 {
     int err;
     
+    mqtt_client_t *client = NULL;
+    
     BaseType_t xReturn = pdPASS;/* 定义一个创建信息返回值，默认为pdPASS */
 
     TCPIP_Init();
+    
+    printf("\nwelcome to mqttclient test...\n");
 
     mqtt_log_init();
-    
-    MQTT_LOG_I("\nwelcome to mqttclient test...\n");
 
-    init_params.read_buf_size = 1024;
-    init_params.write_buf_size = 1024;
+    client = mqtt_lease();
 
 #ifdef TEST_USEING_TLS
-    init_params.network.ca_crt = test_ca_get();
-    init_params.network.port = "8883";
+    mqtt_set_port(client, "8883");
+    mqtt_set_ca(client, (char*)test_ca_get());
 #else
-    init_params.network.port = "1883";
+    mqtt_set_port(client, "1883");
 #endif
-    init_params.network.host = "www.jiejie01.top"; //"47.95.164.112";//"jiejie01.top"; //"129.204.201.235"; //"192.168.1.101";
 
-    init_params.connect_params.user_name = random_string(10); // random_string(10); //"jiejietop-acer1";
-    init_params.connect_params.password = random_string(10); //random_string(10); // "123456";
-    init_params.connect_params.client_id = random_string(10); //random_string(10); // "clientid-acer1";
-    init_params.connect_params.clean_session = 1;
-    
-    mqtt_init(&client, &init_params);
+    mqtt_set_host(client, "www.jiejie01.top");
+    mqtt_set_client_id(client, random_string(10));
+    mqtt_set_user_name(client, random_string(10));
+    mqtt_set_password(client, random_string(10));
+    mqtt_set_clean_session(client, 1);
 
-    err = mqtt_connect(&client);
+    err = mqtt_connect(client);
     
     MQTT_LOG_I("mqtt_connect err = %d", err);
     
-    err = mqtt_subscribe(&client, "freertos-topic", QOS0, NULL);
+    err = mqtt_subscribe(client, "freertos-topic", QOS0, NULL);
     
     MQTT_LOG_I("mqtt_subscribe err = %d", err);    
 
@@ -104,7 +100,7 @@ static void app_task_create(void)
     xReturn = xTaskCreate((TaskFunction_t )mqtt_task, /* 任务入口函数 */
                         (const char*    )"mqtt_task",/* 任务名字 */
                         (uint16_t       )2048,   /* 任务栈大小 */
-                        (void*          )NULL,	/* 任务入口函数参数 */
+                        (void*          )client,	/* 任务入口函数参数 */
                         (UBaseType_t    )10,	    /* 任务的优先级 */
                         (TaskHandle_t*  )&mqtt_task_handle);/* 任务控制块指针 */
     if(pdPASS == xReturn)
@@ -123,8 +119,10 @@ static void app_task_create(void)
   * @ 参数    ：   
   * @ 返回值  ： 无
   ********************************************************************/
-static void mqtt_task(void* parameter)
+static void mqtt_task(void* arg)
 {	
+    mqtt_client_t *client = (mqtt_client_t *)arg;
+    
     char buf[100] = { 0 };
     mqtt_message_t msg;
     memset(&msg, 0, sizeof(msg));
@@ -132,7 +130,7 @@ static void mqtt_task(void* parameter)
 
     vTaskDelay(4000);
     
-    mqtt_list_subscribe_topic(&client);
+    mqtt_list_subscribe_topic(client);
 
     msg.payload = (void *) buf;
     msg.qos = QOS0;
@@ -140,7 +138,7 @@ static void mqtt_task(void* parameter)
     while(1) {
         sprintf(buf, "welcome to mqttclient, this is a publish test, a rand number: %d ...", random_number());
 
-        mqtt_publish(&client, "freertos-topic", &msg);
+        mqtt_publish(client, "freertos-topic", &msg);
         
         vTaskDelay(4000);
     }

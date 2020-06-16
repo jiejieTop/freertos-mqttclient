@@ -2,7 +2,7 @@
  * @Author: jiejie
  * @Github: https://github.com/jiejieTop
  * @Date: 2019-12-09 21:31:25
- * @LastEditTime: 2020-06-16 14:51:40
+ * @LastEditTime: 2020-06-16 17:34:37
  * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
  */
 #include "mqttclient.h"
@@ -1040,7 +1040,7 @@ exit:
     RETURN_ERROR(rc);
 }
 
-static int _mqtt_init(mqtt_client_t* c)
+static int mqtt_init(mqtt_client_t* c)
 {
     /* network init */
     c->mqtt_network = (network_t*) platform_memory_alloc(sizeof(network_t));
@@ -1144,7 +1144,7 @@ mqtt_client_t *mqtt_lease(void)
 
     memset(c, 0, sizeof(mqtt_client_t));
 
-    rc = _mqtt_init(c);
+    rc = mqtt_init(c);
     if (MQTT_SUCCESS_ERROR != rc)
         return NULL;
     
